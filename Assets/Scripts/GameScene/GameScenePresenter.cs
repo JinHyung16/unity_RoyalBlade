@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using HughGeneric.Presenter;
 public class GameScenePresenter : PresenterSingleton<GameScenePresenter>
 {
     [SerializeField] private GameSceneViewer gameSceneViewer;
@@ -12,6 +12,8 @@ public class GameScenePresenter : PresenterSingleton<GameScenePresenter>
     {
         Time.timeScale = 1;
         score = 0;
+
+        AudioManager.GetInstance.BGMPlay();
     }
 
     public void UpdateScore()

@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -11,8 +10,6 @@ public class RareCat : BaseEnemy
 
     private Rigidbody2D rigid2D;
     private Animator animator;
-
-    private bool isActive = false;
 
     //UnityEngine.Pool 관련 데이터
     private IObjectPool<RareCat> managedPool;
@@ -32,20 +29,17 @@ public class RareCat : BaseEnemy
     private void OnEnable()
     {
         rareCatData.OnAfterDeserialize();
-        isActive = true;
-        rareCatData.OnAfterDeserialize();
-        //FallToGround().Forget();
-    }
-
-    private void OnDisable()
-    {
-        isActive = false;
     }
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Shield") || collision.CompareTag("Sword"))
+        if (collision.CompareTag("Shield"))
         {
+            OnBounce();
+        }
+        if (collision.CompareTag("Sword"))
+        {
+            AudioManager.GetInstance.EnemySFXPlay();
             OnBounce();
         }
 
@@ -77,14 +71,6 @@ public class RareCat : BaseEnemy
         }
     }
 
-    private async UniTaskVoid FallToGround()
-    {
-       while (isActive)
-        {
-            rigid2D.velocity = Vector2.down * Time.deltaTime * fallDownPower;
-            await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
-        }
-    }
     private void OnDied()
     {
         GameScenePresenter.GetInstance.UpdateScore();

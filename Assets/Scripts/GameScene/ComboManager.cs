@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using System;
-
+using HughGeneric.Presenter;
 public class ComboManager : PresenterSingleton<ComboManager>
 {
 

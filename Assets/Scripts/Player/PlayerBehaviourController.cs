@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-
+using HughGeneric.Presenter;
 public class PlayerBehaviourController : MonoBehaviour
 {
     private Rigidbody2D rigid2D;
@@ -16,6 +16,8 @@ public class PlayerBehaviourController : MonoBehaviour
     private static readonly int onDefenseSp = Animator.StringToHash("onDefenseSp");
 
     [SerializeField] private PlayerData playerData;
+
+    //particle systme
     [SerializeField] private ParticleSystem slashParticle;
     [SerializeField] private ParticleSystem ghostTrailParticle;
 
@@ -52,7 +54,7 @@ public class PlayerBehaviourController : MonoBehaviour
             IsGround = true;
         }
 
-        if (collision.gameObject.CompareTag("Enemy") && !isDefend)
+        if (collision.gameObject.CompareTag("Enemy") && !isDefend && IsGround)
         {
             OnDamaged();
         }

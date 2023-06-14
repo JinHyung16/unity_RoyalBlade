@@ -43,6 +43,7 @@ public class GameSceneViewer : MonoBehaviour
         clostBtn.SetActive(true);
         gameResultText.text = "Pause Game";
         gameResultCanvas.enabled = true;
+        Time.timeScale = 0;
     }
 
     public void GameOver()
@@ -60,12 +61,14 @@ public class GameSceneViewer : MonoBehaviour
 
     public void ExitGame()
     {
+        AudioManager.GetInstance.BGMStop();
         SceneController.GetInstance.LoadScene("Main");
     }
 
     public void CloseBtn()
     {
         gameResultCanvas.enabled = false;
+        Time.timeScale = 1;
     }
     #endregion
 }

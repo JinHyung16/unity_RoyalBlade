@@ -5,11 +5,12 @@ using UnityEngine;
 public class Shield : MonoBehaviour
 {
     [SerializeField] private PlayerBehaviourController playerController;
-
+    [SerializeField] private PlayerAudioController playAudioController;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy"))
         {
+            playAudioController.PlayDefenseSFX();
             ComboManager.GetInstance.ResetCombo();
             playerController.OnBounceByDefend();
             playerController.isDefend = true;

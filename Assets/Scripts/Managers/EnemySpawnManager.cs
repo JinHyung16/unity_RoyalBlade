@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
-
+using HughGeneric.Presenter;
 public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
 {
     [SerializeField] private GameObject basicCatPrefab;
@@ -66,7 +66,7 @@ public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
                     enemy.gameObject.SetActive(true);
                 }
             }
-            float spawnTime = UnityEngine.Random.Range(5.0f, 10.0f);
+            float spawnTime = UnityEngine.Random.Range(5.0f, 12.0f);
             await UniTask.Delay(TimeSpan.FromSeconds(spawnTime), cancellationToken: this.GetCancellationTokenOnDestroy());
         }
     }

@@ -168,6 +168,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallDownPower: 400
-  bouncePower: 200
+  bouncePower: 150
   rareCatData: {fileID: 11400000, guid: 9106b6881a4a2194296a8c648c41fa22, type: 2}
   spriteRenderer: {fileID: 696767113652122466}

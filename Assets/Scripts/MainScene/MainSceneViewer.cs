@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 
@@ -7,10 +8,28 @@ public class MainSceneViewer : MonoBehaviour
 {
     [SerializeField] private TMP_Text gameStartText;
 
+    private CancellationTokenSource tokenSource;
     private void Start()
     {
-        Debug.Log("Main");
+        Time.timeScale = 1;
+
+        if (tokenSource != null)
+        {
+            tokenSource.Dispose();
+        }
+        tokenSource = new CancellationTokenSource();
+
         BlinkGameStartText().Forget();
+    }
+
+    private void OnDisable()
+    {
+        tokenSource.Cancel();
+    }
+
+    private void OnDestroy()
+    {
+        tokenSource.Dispose();
     }
 
     private async UniTaskVoid BlinkGameStartText()
@@ -18,9 +37,9 @@ public class MainSceneViewer : MonoBehaviour
         while (true)
         {
             gameStartText.alpha = 0.0f;
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: tokenSource.Token);
             gameStartText.alpha = 1.0f;
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: tokenSource.Token);
         }
     }
 

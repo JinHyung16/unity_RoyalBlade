@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
-
+using HughGeneric.Presenter;
 public class HitDamagePoolManager : PresenterSingleton<HitDamagePoolManager>
 {
     //HitDamageText Pool 관련 데이터
