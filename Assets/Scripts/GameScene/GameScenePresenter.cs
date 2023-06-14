@@ -2,38 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameScenePresenter : MonoBehaviour
+public class GameScenePresenter : PresenterSingleton<GameScenePresenter>
 {
-    #region Static Presenter
-    private static GameScenePresenter instance;
-    public static GameScenePresenter GetInstance
+    [SerializeField] private GameSceneViewer gameSceneViewer;
+
+    private int score = 0;
+
+    private void Start()
     {
-        get
+        Time.timeScale = 1;
+        score = 0;
+    }
+
+    public void UpdateScore()
+    {
+        score += (ComboManager.GetInstance.HitCombo * 2);
+        gameSceneViewer.UpdateScore(score);
+    }
+
+    public void UpdatePlayerHP(int hp)
+    {
+        gameSceneViewer.UpdateHP(hp);
+        if (hp <= 0)
         {
-            if (instance == null)
-            {
-                return null;
-            }
-            return instance;
+            EnemySpawnManager.GetInstance.SpawnEnemyStop();
+            gameSceneViewer.GameOver();
         }
-    }
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-    }
-    #endregion
-
-    public void ScoreUpdate(float scoreMultiple)
-    {
-        Debug.Log("점수 업데이트");
-    }
-
-    public void PlayerHPUpdate()
-    {
-        Debug.Log("Player HP 업데이트");
     }
 }

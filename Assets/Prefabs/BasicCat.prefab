@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2102605563473324118}
   - component: {fileID: 2102605563473324119}
   - component: {fileID: 4263395991247326018}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BasicCat
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -121,11 +121,11 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 2
-  m_LinearDrag: 5
+  m_LinearDrag: 1
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 1.5
   m_Material: {fileID: 0}
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 5
@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0a8ebf16abfaa4cb60c948d0a81261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bouncePower: 20
+  fallDownPower: 400
+  bouncePower: 200
   basicCatData: {fileID: 11400000, guid: 6e430b90f7888d847a395682c50b1875, type: 2}
   spriteRenderer: {fileID: 2102605563473324117}

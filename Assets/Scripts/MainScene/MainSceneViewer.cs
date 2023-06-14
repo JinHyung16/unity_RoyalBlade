@@ -9,6 +9,7 @@ public class MainSceneViewer : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Main");
         BlinkGameStartText().Forget();
     }
 

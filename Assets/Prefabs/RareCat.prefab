@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 696767113652122467}
   - component: {fileID: 696767113652122476}
   - component: {fileID: 8816118331180577917}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: RareCat
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: 0f3ddd74d5f7fdd469f80e41b12433b0, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -121,11 +121,11 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 2
-  m_LinearDrag: 5
+  m_LinearDrag: 1
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 1.5
   m_Material: {fileID: 0}
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 5
@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e6d4ae86d82bfe40b7ac0d480a8721c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bouncePower: 20
+  fallDownPower: 400
+  bouncePower: 200
   rareCatData: {fileID: 11400000, guid: 9106b6881a4a2194296a8c648c41fa22, type: 2}
   spriteRenderer: {fileID: 696767113652122466}

@@ -10,7 +10,8 @@ public class Sword : MonoBehaviour
 
     private void Start()
     {
-        swordPowerMultiple = UnityEngine.Random.Range(1.0f, 100.0f);
+        playerData.OnAfterDeserializePower();
+        swordPowerMultiple = UnityEngine.Random.Range(0.5f, 100.0f);
         playerData.playerPowerRuntime = Mathf.RoundToInt(playerData.playerPowerRuntime * swordPowerMultiple);
     }
 
@@ -21,12 +22,13 @@ public class Sword : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             collision.gameObject.GetComponent<BaseEnemy>().OnDamge(playerData.playerPowerRuntime);
+            ComboManager.GetInstance.SetHitCombo();
         }
     }
 
     private void AttackDamageCacul()
     {
-        playerData.OnAfterDeserialize();
+        playerData.OnAfterDeserializePower();
         swordPowerMultiple = UnityEngine.Random.Range(1.0f, 100.0f);
         playerData.playerPowerRuntime = Mathf.RoundToInt(playerData.playerPowerRuntime * swordPowerMultiple);
 

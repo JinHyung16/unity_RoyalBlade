@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -11,28 +12,46 @@ public class RareCat : BaseEnemy
     private Rigidbody2D rigid2D;
     private Animator animator;
 
+    private bool isActive = false;
+
     //UnityEngine.Pool 관련 데이터
     private IObjectPool<RareCat> managedPool;
-    private bool isPoolRelease = false;
 
-    private void Start()
+    private void Awake()
     {
         rigid2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
+
+    private void Start()
+    {
+        rareCatData.OnAfterDeserialize();
+        rigid2D.bodyType = RigidbodyType2D.Dynamic;
+    }
+
     private void OnEnable()
     {
         rareCatData.OnAfterDeserialize();
-        isPoolRelease = false;
+        isActive = true;
+        rareCatData.OnAfterDeserialize();
+        //FallToGround().Forget();
     }
 
-
+    private void OnDisable()
+    {
+        isActive = false;
+    }
+    
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy") || collision.CompareTag("Shield"))
+        if (collision.CompareTag("Shield") || collision.CompareTag("Sword"))
         {
-            Debug.Log(collision.tag);
             OnBounce();
+        }
+
+        if (collision.CompareTag("DieZone"))
+        {
+            this.DestroyManagedPool();
         }
     }
 
@@ -44,27 +63,31 @@ public class RareCat : BaseEnemy
 
     public void DestroyManagedPool()
     {
-        if (!isPoolRelease)
-        {
-            managedPool.Release(this);
-            isPoolRelease = true;
-        }
+        managedPool.Release(this);
     }
     #endregion
     public override void OnDamge(int damage)
     {
-        Debug.Log("검에 맞고 있습니다");
-        rareCatData.enemyHpRuntime -= damage;
+        HitDamagePoolManager.GetInstance.GetHitDamageText(this.transform, damage.ToString());
         OnBounce();
-        GameScenePresenter.GetInstance.ScoreUpdate(1.8f);
+        rareCatData.enemyHpRuntime -= damage;
         if (rareCatData.enemyHpRuntime <= 0)
         {
             OnDied();
         }
     }
 
+    private async UniTaskVoid FallToGround()
+    {
+       while (isActive)
+        {
+            rigid2D.velocity = Vector2.down * Time.deltaTime * fallDownPower;
+            await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
+        }
+    }
     private void OnDied()
     {
+        GameScenePresenter.GetInstance.UpdateScore();
         this.DestroyManagedPool();
     }
 

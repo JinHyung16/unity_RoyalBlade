@@ -10,6 +10,7 @@ public class Shield : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
+            ComboManager.GetInstance.ResetCombo();
             playerController.OnBounceByDefend();
             playerController.isDefend = true;
         }

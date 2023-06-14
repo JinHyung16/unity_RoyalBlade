@@ -18,9 +18,12 @@ public class PlayerData : ScriptableObject
 
     [NonSerialized] public int playerPowerRuntime;
 
-    public void OnAfterDeserialize()
+    public void OnAfterDeserializeHP()
     {
         playerHpRuntime = characterHP;
+    }
+    public void OnAfterDeserializePower()
+    {
         playerPowerRuntime = characterPower;
     }
 

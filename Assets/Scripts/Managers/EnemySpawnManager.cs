@@ -2,82 +2,72 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class EnemySpawnManager : MonoBehaviour
+public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
 {
     [SerializeField] private GameObject basicCatPrefab;
     [SerializeField] private GameObject rareCatPrefab;
 
-    private Stack<GameObject> spawnObjStack;
-
     private IObjectPool<BasicCat> basicCatPool;
     private IObjectPool<RareCat> rareCatPool;
 
-    [SerializeField] private Vector2 spawnPos;
+    [SerializeField] private List<Transform> spawnPosList;
 
-    //UniTask token
-    private CancellationTokenSource tokenSource;
+    public bool IsSpawnCan { get; set; }
 
-    private void Start()
+    protected override void OnAwake()
     {
         InitPool();
-
-        if (tokenSource != null)
-        {
-            tokenSource.Cancel();
-            tokenSource.Dispose();
-        }
-        tokenSource = new CancellationTokenSource();
-
+    }
+    private void Start()
+    {
+        IsSpawnCan = true;
         SpawnEnemyStart();
     }
 
     private void InitPool()
     {
-        basicCatPool = new ObjectPool<BasicCat>(CreateBasicCat, OnGetBasicCat, OnReleaseBasicCat, OnDestroyBasicCat, maxSize: 10);
-        rareCatPool = new ObjectPool<RareCat>(CreateRareCat, OnGetRareCat, OnReleaseRareCat, OnDestroyRareCat, maxSize: 10);
+        basicCatPool = new ObjectPool<BasicCat>(CreateBasicCat, OnGetBasicCat, OnReleaseBasicCat, OnDestroyBasicCat, maxSize: 100);
+        rareCatPool = new ObjectPool<RareCat>(CreateRareCat, OnGetRareCat, OnReleaseRareCat, OnDestroyRareCat, maxSize: 100);
     }
 
     public void SpawnEnemyStart()
     {
-        if (tokenSource != null)
-        {
-            tokenSource.Dispose();
-        }
-        tokenSource = new CancellationTokenSource();
-
         EnemySpawn().Forget();
     }
 
     public void SpawnEnemyStop()
     {
-        tokenSource.Cancel();
+        IsSpawnCan = false;
     }
 
     private async UniTaskVoid EnemySpawn()
     {
-        while (true)
+        while (IsSpawnCan)
         {
-            for (int i = 0; i < 5; i++)
+            int spawningIndex = UnityEngine.Random.Range(5, spawnPosList.Count);
+            for (int i = 0; i < spawningIndex; i++)
             {
                 int randCats = UnityEngine.Random.Range(0, 2);
                 if (randCats == 0)
                 {
                     var enemy = basicCatPool.Get();
-                    enemy.transform.position = spawnPos;
+                    enemy.transform.position = spawnPosList[i].position;
+                    enemy.gameObject.SetActive(true);
                 }
                 else
                 {
                     var enemy = rareCatPool.Get();
-                    enemy.transform.position = spawnPos;
+                    enemy.transform.position = spawnPosList[i].position;
+                    enemy.gameObject.SetActive(true);
                 }
-                Debug.Log(i);
             }
             float spawnTime = UnityEngine.Random.Range(5.0f, 10.0f);
-            await UniTask.Delay(TimeSpan.FromSeconds(spawnTime), cancellationToken: tokenSource.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(spawnTime), cancellationToken: this.GetCancellationTokenOnDestroy());
         }
     }
 
@@ -91,6 +81,8 @@ public class EnemySpawnManager : MonoBehaviour
 
     private void OnGetBasicCat(BasicCat basicCat)
     {
+        //Get()실행시 우선 꺼두고 위치 바꾸고 켜는 형식으로 변경
+        //basicCat.gameObject.SetActive(true);
         basicCat.gameObject.SetActive(true);
     }
 
@@ -115,7 +107,9 @@ public class EnemySpawnManager : MonoBehaviour
 
     private void OnGetRareCat(RareCat rareCat)
     {
-        rareCat.gameObject.SetActive(true);
+        //Get()실행시 우선 꺼두고 위치 바꾸고 켜는 형식으로 변경
+        //rareCat.gameObject.SetActive(true);
+        rareCat.gameObject.SetActive(false);
     }
 
     private void OnReleaseRareCat(RareCat rareCat)

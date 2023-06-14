@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ec5aeef417abcd42879a42bf42b8c8d, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  characterHP: 100
-  characterPower: 20
-  jumpPower: 30
-  jumpSpecialPower: 80
-  bouncePower: 20
+  characterHP: 3
+  characterPower: 15
+  jumpPower: 150
+  jumpSpecialPower: 180
+  bouncePower: 10

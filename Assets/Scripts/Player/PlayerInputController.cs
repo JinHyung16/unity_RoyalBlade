@@ -14,6 +14,11 @@ public class PlayerInputController : MonoBehaviour
     [SerializeField] private Image attackFilledImg;
     [SerializeField] private Image attackFullImg;
 
+    [Header("Defense Btn과 관련된 데이터들")]
+    [SerializeField] private RectTransform defenseBtnRectTrans;
+    [SerializeField] private Image defenseFilledImg;
+    [SerializeField] private Image defenseFullImg;
+
     [Header("Jump Btn과 관련된 데이터들")]
     [SerializeField] private RectTransform jumpBtnRectTrans;
     [SerializeField] private Image jumpFilledImg;
@@ -26,16 +31,14 @@ public class PlayerInputController : MonoBehaviour
     //Joy Stick과 Drag와 관련된 데이터들
     private RectTransform joyBtnMoveRectTrans;
 
-    //공격과 점프 full gauage image의 color data들
-    private Color attackFullImgColor;
-    private Color jumpFullImgColor;
-
     //공격과 점프시 게이지 충전량 -> 1.0f / 무기별 충전량 -> 현재는 임시 값으로 세팅
     private float attackGauage = 0.0f;
+    private float defenseGauage = 0.0f;
     private float jumpGauage = 0.0f;
 
     //공격과 점프의 게이지를 다 채웠을 경우 true가 됨
     private bool isAttackSpecial = false;
+    private bool isDefenseSpecial = false;
     private bool isJumpSpeical  = false;
 
     private void Awake()
@@ -48,17 +51,21 @@ public class PlayerInputController : MonoBehaviour
         {
             playerController = GameObject.Find("Character").GetComponent<PlayerBehaviourController>();
         }
+
         attackFilledImg.fillAmount = 0.0f;
+        defenseFilledImg.fillAmount = 0.0f;
         jumpFilledImg.fillAmount = 0.0f;
 
-        attackFullImgColor = attackFullImg.color;
-        jumpFullImgColor = jumpFullImg.color;
-        attackFullImgColor.a = 0.0f;
-        jumpFullImgColor.a = 0.0f;
-        attackFullImg.color = attackFullImgColor;
-        jumpFullImg.color = jumpFullImgColor;
+        isAttackSpecial = false;
+        isDefenseSpecial = false;
+        isJumpSpeical = false;
+
+        attackFullImg.enabled = false;
+        defenseFullImg.enabled = false;
+        jumpFullImg.enabled = false;
 
         attackGauage = 0.1f;
+        defenseGauage = 0.05f;
         jumpGauage = 0.3f;
 
     }
@@ -66,13 +73,11 @@ public class PlayerInputController : MonoBehaviour
     #region Button - EventTrigger System Functions
     public void AttackButtonDown(BaseEventData data)
     {
-        Debug.Log("Attack 실행중");
         attackFilledImg.fillAmount += attackGauage;
         if (1.0f <= attackFilledImg.fillAmount)
         {
             isAttackSpecial = true;
-            attackFullImgColor.a = 0.5f;
-            attackFullImg.color = attackFullImgColor;
+            attackFullImg.enabled = true;
         }
         playerController.Attack();
     }
@@ -101,28 +106,61 @@ public class PlayerInputController : MonoBehaviour
     private void AttackGauageReset()
     {
         attackFilledImg.fillAmount = 0.0f;
-        attackFullImgColor.a = 0.0f;
-        attackFullImg.color = attackFullImgColor;
+        attackFullImg.enabled = false;
         isAttackSpecial = false;
     }
 
     public void DefenseButtonDown(BaseEventData data)
     {
-        Debug.Log("Defense 실행중");
+        defenseFilledImg.fillAmount += defenseGauage;
+        if (1.0f <= defenseFilledImg.fillAmount)
+        {
+            isDefenseSpecial = true;
+            defenseFullImg.enabled = true;
+        }
+
         playerController.Defense();
     }
 
+    private void DefenseGauageReset()
+    {
+        defenseFilledImg.fillAmount = 0.0f;
+        defenseFullImg.enabled = false;
+        isDefenseSpecial = false;
+    }
+
+    public void DefenseButtonDrag(BaseEventData data)
+    {
+        PointerEventData eventData = (PointerEventData)data;
+        if (isDefenseSpecial)
+        {
+            Vector2 inputPos = eventData.position - defenseBtnRectTrans.anchoredPosition;
+            inputPos.x = 0;
+            Vector2 inputDir = inputPos.y < joyBtnMoveRange ? inputPos : inputPos.normalized * joyBtnMoveRange;
+            defenseBtnRectTrans.anchoredPosition = inputDir;
+            if (inputDir.y == defenseBtnRectTrans.anchoredPosition.y)
+            {
+                DefenseGauageReset();
+                playerController.DefenseSpecial();
+            }
+        }
+    }
+
+    public void DefenseButtonDragEnd(BaseEventData data)
+    {
+        defenseBtnRectTrans.anchoredPosition = Vector2.zero;
+    }
+
+
     public void JumpButtonDown(BaseEventData data)
     {
-        Debug.Log("Jump 실행중");
         if (playerController.IsGround)
         {
             jumpFilledImg.fillAmount += jumpGauage;
             if (1.0f <= jumpFilledImg.fillAmount)
             {
                 isJumpSpeical = true;
-                jumpFullImgColor.a = 0.5f;
-                jumpFullImg.color = jumpFullImgColor;
+                jumpFullImg.enabled = true;
             }
             playerController.Jump();
         }
@@ -153,8 +191,7 @@ public class PlayerInputController : MonoBehaviour
     private void JumpGauageReset()
     {
         jumpFilledImg.fillAmount = 0.0f;
-        jumpFullImgColor.a = 0.0f;
-        jumpFullImg.color = jumpFullImgColor;
+        jumpFullImg.enabled = false;
         isJumpSpeical = false;
     }
     #endregion
