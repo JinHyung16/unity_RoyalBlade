@@ -14,6 +14,7 @@ public class PlayerBehaviourController : MonoBehaviour
     private static readonly int onJump = Animator.StringToHash("onJump");
     private static readonly int blendAttack = Animator.StringToHash("IsAttack");
     private static readonly int onDefenseSp = Animator.StringToHash("onDefenseSp");
+    private static readonly int onHit = Animator.StringToHash("onHit");
 
     [SerializeField] private PlayerData playerData;
 
@@ -56,6 +57,7 @@ public class PlayerBehaviourController : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Enemy") && !isDefend && IsGround)
         {
+            ComboManager.GetInstance.ResetCombo();
             OnDamaged();
         }
     }
@@ -108,6 +110,7 @@ public class PlayerBehaviourController : MonoBehaviour
 
     private void OnDamaged()
     {
+        animator.SetTrigger(onHit);
         playerData.playerHpRuntime -= 1;
         GameScenePresenter.GetInstance.UpdatePlayerHP(playerData.playerHpRuntime);
     }

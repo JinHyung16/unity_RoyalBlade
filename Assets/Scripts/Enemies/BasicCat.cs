@@ -35,16 +35,29 @@ public class BasicCat : BaseEnemy
     {
         if (collision.CompareTag("Shield"))
         {
-            OnBounce();
+            OnKnockBackByShield();
         }
         if (collision.CompareTag("Sword"))
         {
             AudioManager.GetInstance.EnemySFXPlay();
-            OnBounce();
+            OnKnockBackBySword();
         }
         if (collision.CompareTag("DieZone"))
         {
             this.DestroyManagedPool();
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Shield"))
+        {
+            OnKnockBackByShield();
+        }
+        if (collision.CompareTag("Sword"))
+        {
+            AudioManager.GetInstance.EnemySFXPlay();
+            OnKnockBackBySword();
         }
     }
 
@@ -63,7 +76,7 @@ public class BasicCat : BaseEnemy
     public override void OnDamge(int damage)
     {
         HitDamagePoolManager.GetInstance.GetHitDamageText(this.transform, damage.ToString());
-        OnBounce();
+        OnKnockBackByShield();
         basicCatData.enemyHpRuntime -= damage;
 
         if (basicCatData.enemyHpRuntime <= 0)
@@ -77,13 +90,18 @@ public class BasicCat : BaseEnemy
         this.DestroyManagedPool();
     }
 
+    private void OnKnockBackBySword()
+    {
+        rigid2D.AddForce(Vector2.up * knockBackSwordPower, ForceMode2D.Impulse);
+    }
+    
     /// <summary>
     /// Player가 쉴드로 밀쳐 밀쳐진 Enemy거나
     /// 혹은 밀쳐지는 상황에서 본인들끼리 충돌할 경우 호출
     /// </summary>
-    private void OnBounce()
+    private void OnKnockBackByShield()
     {
         animator.SetTrigger(onHit);
-        rigid2D.AddForce(Vector2.up * bouncePower, ForceMode2D.Impulse);
+        rigid2D.AddForce(Vector2.up * knockBackShieldPower, ForceMode2D.Impulse);
     }
 }

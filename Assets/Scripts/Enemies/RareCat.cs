@@ -35,17 +35,30 @@ public class RareCat : BaseEnemy
     {
         if (collision.CompareTag("Shield"))
         {
-            OnBounce();
+            OnKnockBackByShield();
         }
         if (collision.CompareTag("Sword"))
         {
             AudioManager.GetInstance.EnemySFXPlay();
-            OnBounce();
+            OnKnockBackBySword();
         }
 
         if (collision.CompareTag("DieZone"))
         {
             this.DestroyManagedPool();
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Shield"))
+        {
+            OnKnockBackByShield();
+        }
+        if (collision.CompareTag("Sword"))
+        {
+            AudioManager.GetInstance.EnemySFXPlay();
+            OnKnockBackBySword();
         }
     }
 
@@ -63,7 +76,7 @@ public class RareCat : BaseEnemy
     public override void OnDamge(int damage)
     {
         HitDamagePoolManager.GetInstance.GetHitDamageText(this.transform, damage.ToString());
-        OnBounce();
+        OnKnockBackByShield();
         rareCatData.enemyHpRuntime -= damage;
         if (rareCatData.enemyHpRuntime <= 0)
         {
@@ -78,12 +91,21 @@ public class RareCat : BaseEnemy
     }
 
     /// <summary>
+    /// 칼에 맞았을때 약간의 넉백을 주기위한 함수
+    /// </summary>
+    private void OnKnockBackBySword()
+    {
+        rigid2D.AddForce(Vector2.up * knockBackSwordPower, ForceMode2D.Impulse);
+    }
+
+
+    /// <summary>
     /// Player가 쉴드로 밀쳐 밀쳐진 Enemy거나
     /// 혹은 밀쳐지는 상황에서 본인들끼리 충돌할 경우 호출
     /// </summary>
-    private void OnBounce()
+    private void OnKnockBackByShield()
     {
         animator.SetTrigger(onHit);
-        rigid2D.AddForce(Vector2.up * bouncePower, ForceMode2D.Impulse);
+        rigid2D.AddForce(Vector2.up * knockBackShieldPower, ForceMode2D.Impulse);
     }
 }

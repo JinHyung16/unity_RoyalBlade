@@ -6,7 +6,9 @@ using UnityEngine.Pool;
 public class BaseEnemy : MonoBehaviour
 {
     public int fallDownPower;
-    public int bouncePower;
+
+    public int knockBackSwordPower;
+    public int knockBackShieldPower;
 
     public virtual void OnDamge(int damage) { }
 
