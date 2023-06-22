@@ -1,9 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
 using HughGeneric.Presenter;
@@ -29,7 +26,7 @@ public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
         SpawnEnemyStart();
     }
 
-    private void InitPool()
+    public void InitPool()
     {
         basicCatPool = new ObjectPool<BasicCat>(CreateBasicCat, OnGetBasicCat, OnReleaseBasicCat, OnDestroyBasicCat, maxSize: 100);
         rareCatPool = new ObjectPool<RareCat>(CreateRareCat, OnGetRareCat, OnReleaseRareCat, OnDestroyRareCat, maxSize: 100);

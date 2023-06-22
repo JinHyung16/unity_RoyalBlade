@@ -10,6 +10,7 @@ public class BaseEnemy : MonoBehaviour
     public int knockBackSwordPower;
     public int knockBackShieldPower;
 
-    public virtual void OnDamge(int damage) { }
+    private IObjectPool<BaseEnemy> managedPool;
 
+    public virtual void OnDamge(int damage) { }
 }
