@@ -1,3 +1,4 @@
+using Hugh.Utility;
 using HughGeneric;
 using System;
 using System.Collections;
@@ -9,89 +10,98 @@ namespace Hugh.PoolSystem
 {
     public class PoolManager : Singleton<PoolManager>
     {
-        protected override void OnAwake()
+        [SerializeField] private LoadAssetBundle loadAssetBundle;
+        private Dictionary<string, int> loadPrefabList = new Dictionary<string, int>(); //poolDictionary에 들어온 prefab의 이름에 맞춰 순서를 적어놓는다.
+
+        private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+
+        private void Start()
         {
-            //base.OnAwake();
-            Pooling();
+        }
+        private void OnDisable()
+        {
+            loadAssetBundle.isLoadDone = true;
         }
 
-        private Dictionary<PoolableType, Stack<PoolObject>> poolDictionary = new Dictionary<PoolableType, Stack<PoolObject>>();
-
-        /// <summary>
-        /// Dictionary내 PoolabeType의 개수에 맞춰 초기화해서 공간을 확보해둔다.
-        /// </summary>
-        private void Pooling()
+        public void LoadPrefabsWhereBundle(string bundleName)
         {
-            foreach ( PoolableType type in Enum.GetValues(typeof(PoolableType)) )
-            {
-                poolDictionary.Add(type, new Stack<PoolObject>());
-            }
-
+            loadAssetBundle.LoadBundleFromLocalAsync(bundleName);
         }
 
-        private PoolObject CreatePoolObject(PoolableType tpye, string name)
-        {
-            GameObject obj = Resources.Load(PrefabPath(tpye) + name, typeof(GameObject)) as GameObject;
 
-            if ( obj == null )
+        public void Pooling(int poolCnt = 30)
+        {
+            List<GameObject> list = loadAssetBundle.PrefabList;
+            if ( list.Count < 1 || list == null )
             {
-                return null;
+                Debug.Log("불러온 에셋 리스트가 없습니다.");
+                return;
             }
 
-            obj = Instantiate(obj);
-
-            if ( obj.TryGetComponent<PoolObject>(out PoolObject poolObj) )
+            for ( int i = 0; i < list.Count; i++ )
             {
-                poolObj.Name = name;
-                return poolObj;
+                loadPrefabList.Add(list[i].name, i);
+                poolDictionary.Add(list[i].name, new Queue<GameObject>());
+            }
+
+            foreach ( var prefab in list )
+            {
+                GameObject obj = prefab;
+                for ( int i = 0; i < poolCnt; i++ )
+                {
+
+                    Instantiate(obj);
+                    obj.name = prefab.name;
+                    poolDictionary[prefab.name].Enqueue(obj);
+                    obj.SetActive(false);
+                }
+            }
+        }
+
+        private GameObject CreateNewObjecct(string name)
+        {
+            List<GameObject> list = loadAssetBundle.PrefabList;
+            GameObject obj = Instantiate(list[loadPrefabList[name]]);
+            obj.name = name;
+            return obj;
+        }
+
+        public GameObject GetObject(string name)
+        {
+            if ( poolDictionary.TryGetValue(name, out Queue<GameObject> objQueue) )
+            {
+                if ( objQueue.Count < 1 )
+                {
+                    return CreateNewObjecct(name);
+                }
+                else
+                {
+                    GameObject obj = objQueue.Dequeue();
+                    obj.SetActive(true);
+                    return obj;
+                }
             }
             else
             {
-                poolObj = obj.AddComponent<PoolObject>();
-                poolObj.Name = name;
-                return poolObj;
+                return CreateNewObjecct(name);
             }
         }
 
-        /// <summary>
-        /// Pooling할 오브젝트를 프리팹화 시켜 Resources 폴더 내 저장해둔 위치를 읽어온다.
-        /// </summary>
-        /// <param name="type"> pooling할 오브젝트 타입</param>
-        /// <returns> Resources폴더 내 해당 prefab 경로 반환</returns>
-        private string PrefabPath(PoolableType type)
+        public void ReturnObject(GameObject obj)
         {
-            switch ( type )
+            if ( poolDictionary.TryGetValue(obj.name, out Queue<GameObject> objQueue) )
             {
-                case PoolableType.None:
-                    break;
-                case PoolableType.BasicCat:
-                    return "Prefab/Enemy/";
-                case PoolableType.RareCat:
-                    return "Prefab/Enemy/";
+                objQueue.Enqueue(obj);
             }
-            return "Prefab/";
-        }
-
-        public GameObject GetPrefab(PoolableType type, string name)
-        {
-
-            return null;
-        }
-
-        public void DespawnObject(PoolableType _type, GameObject obj)
-        {
-            if ( obj.TryGetComponent<PoolObject>(out PoolObject poolObj) )
+            else
             {
+                Queue<GameObject> newObjQueue = new Queue<GameObject>();
+                newObjQueue.Enqueue(obj);
+                poolDictionary.Add(obj.name, newObjQueue);
             }
+
+            obj.SetActive(false);
         }
 
-    }
-
-    public enum PoolableType
-    {
-        None = 0,
-
-        BasicCat,
-        RareCat,
     }
 }

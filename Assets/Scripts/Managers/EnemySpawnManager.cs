@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 using HughGeneric.Presenter;
+using Hugh.PoolSystem;
+
 public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
 {
     [SerializeField] private GameObject basicCatPrefab;
@@ -20,12 +22,25 @@ public class EnemySpawnManager : PresenterSingleton<EnemySpawnManager>
     {
         InitPool();
     }
+
     private void Start()
     {
         IsSpawnCan = true;
-        SpawnEnemyStart();
+        PoolManager.GetInstance.Pooling();
+        //SpawnEnemyStart();
     }
 
+    private void Update()
+    {
+        if ( Input.GetKeyDown(KeyCode.A) )
+        {
+            for ( int i = 0; i < 10; i++ )
+            {
+                GameObject obj = PoolManager.GetInstance.GetObject("BasicCat");
+                obj.SetActive(true);
+            }
+        }
+    }
     public void InitPool()
     {
         basicCatPool = new ObjectPool<BasicCat>(CreateBasicCat, OnGetBasicCat, OnReleaseBasicCat, OnDestroyBasicCat, maxSize: 100);
