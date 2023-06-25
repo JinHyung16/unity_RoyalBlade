@@ -1,3 +1,4 @@
+using Hugh.PoolSystem;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -10,10 +11,6 @@ public class BasicCat : BaseEnemy
 
     private Rigidbody2D rigid2D;
     private Animator animator;
-
-
-    //UnityEngine.Pool 관련 데이터
-    private IObjectPool<BasicCat> managedPool;
 
     private void Awake()
     {
@@ -44,7 +41,7 @@ public class BasicCat : BaseEnemy
         }
         if (collision.CompareTag("DieZone"))
         {
-            this.DestroyManagedPool();
+            PoolManager.GetInstance.ReturnObject(this.gameObject);
         }
     }
 
@@ -61,18 +58,6 @@ public class BasicCat : BaseEnemy
         }
     }
 
-    #region UnityEngine.Pool Functions
-    public void SetManagedPool(IObjectPool<BasicCat> poolObj)
-    {
-        managedPool = poolObj;
-    }
-
-    public void DestroyManagedPool()
-    {
-        managedPool.Release(this);
-    }
-    #endregion
-
     public override void OnDamge(int damage)
     {
         HitDamagePoolManager.GetInstance.GetHitDamageText(this.transform, damage.ToString());
@@ -87,7 +72,7 @@ public class BasicCat : BaseEnemy
     private void OnDied()
     {
         GameScenePresenter.GetInstance.UpdateScore();
-        this.DestroyManagedPool();
+        PoolManager.GetInstance.ReturnObject(this.gameObject);
     }
 
     private void OnKnockBackBySword()

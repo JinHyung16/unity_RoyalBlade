@@ -1,33 +1,35 @@
 using Hugh.Utility;
-using HughGeneric;
-using System;
-using System.Collections;
+using HughGeneric.Presenter;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Hugh.PoolSystem
 {
-    public class PoolManager : Singleton<PoolManager>
+    public class PoolManager : PresenterSingleton<PoolManager>
     {
         [SerializeField] private LoadAssetBundle loadAssetBundle;
-        private Dictionary<string, int> loadPrefabList = new Dictionary<string, int>(); //poolDictionary에 들어온 prefab의 이름에 맞춰 순서를 적어놓는다.
 
         private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        private void Start()
+        private Dictionary<int, GameObject> poolObjNameDict = new Dictionary<int, GameObject>();
+        public Dictionary<int, GameObject> PoolObjNameDict
         {
+            get
+            {
+                return this.poolObjNameDict;
+            }
         }
-        private void OnDisable()
+
+        protected override void OnAwake()
         {
-            loadAssetBundle.isLoadDone = true;
+            poolObjNameDict = new Dictionary<int, GameObject>();
+
         }
 
         public void LoadPrefabsWhereBundle(string bundleName)
         {
             loadAssetBundle.LoadBundleFromLocalAsync(bundleName);
         }
-
 
         public void Pooling(int poolCnt = 30)
         {
@@ -40,17 +42,15 @@ namespace Hugh.PoolSystem
 
             for ( int i = 0; i < list.Count; i++ )
             {
-                loadPrefabList.Add(list[i].name, i);
+                poolObjNameDict.Add(i, list[i]);
                 poolDictionary.Add(list[i].name, new Queue<GameObject>());
             }
 
             foreach ( var prefab in list )
             {
-                GameObject obj = prefab;
                 for ( int i = 0; i < poolCnt; i++ )
                 {
-
-                    Instantiate(obj);
+                    GameObject obj = Instantiate(prefab);
                     obj.name = prefab.name;
                     poolDictionary[prefab.name].Enqueue(obj);
                     obj.SetActive(false);
@@ -58,21 +58,21 @@ namespace Hugh.PoolSystem
             }
         }
 
-        private GameObject CreateNewObjecct(string name)
+        private GameObject CreateNewObjecct(GameObject gameObject)
         {
-            List<GameObject> list = loadAssetBundle.PrefabList;
-            GameObject obj = Instantiate(list[loadPrefabList[name]]);
-            obj.name = name;
+            GameObject obj = Instantiate(gameObject);
+            obj.name = gameObject.name;
+            poolDictionary[obj.name].Enqueue(obj);
             return obj;
         }
 
-        public GameObject GetObject(string name)
+        public GameObject GetObject(GameObject gameObject)
         {
-            if ( poolDictionary.TryGetValue(name, out Queue<GameObject> objQueue) )
+            if ( poolDictionary.TryGetValue(gameObject.name, out Queue<GameObject> objQueue) )
             {
                 if ( objQueue.Count < 1 )
                 {
-                    return CreateNewObjecct(name);
+                    return CreateNewObjecct(gameObject);
                 }
                 else
                 {
@@ -83,24 +83,35 @@ namespace Hugh.PoolSystem
             }
             else
             {
-                return CreateNewObjecct(name);
+                return CreateNewObjecct(gameObject);
             }
         }
 
-        public void ReturnObject(GameObject obj)
+        public void ReturnObject(GameObject gameObject)
         {
-            if ( poolDictionary.TryGetValue(obj.name, out Queue<GameObject> objQueue) )
+            if ( poolDictionary.TryGetValue(gameObject.name, out Queue<GameObject> objQueue) )
             {
-                objQueue.Enqueue(obj);
+                objQueue.Enqueue(gameObject);
             }
             else
             {
                 Queue<GameObject> newObjQueue = new Queue<GameObject>();
-                newObjQueue.Enqueue(obj);
-                poolDictionary.Add(obj.name, newObjQueue);
+                newObjQueue.Enqueue(gameObject);
+                poolDictionary.Add(gameObject.name, newObjQueue);
             }
 
-            obj.SetActive(false);
+            gameObject.SetActive(false);
+        }
+
+        public void ResetPool()
+        {
+            loadAssetBundle.isLoadDone = true;
+
+            poolDictionary.Clear();
+            poolObjNameDict.Clear();
+
+            poolDictionary = null;
+            poolObjNameDict = null;
         }
 
     }

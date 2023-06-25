@@ -1,3 +1,4 @@
+using Hugh.PoolSystem;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -10,9 +11,6 @@ public class RareCat : BaseEnemy
 
     private Rigidbody2D rigid2D;
     private Animator animator;
-
-    //UnityEngine.Pool 관련 데이터
-    private IObjectPool<RareCat> managedPool;
 
     private void Awake()
     {
@@ -43,9 +41,9 @@ public class RareCat : BaseEnemy
             OnKnockBackBySword();
         }
 
-        if (collision.CompareTag("DieZone"))
+        if ( collision.CompareTag("DieZone") )
         {
-            this.DestroyManagedPool();
+            PoolManager.GetInstance.ReturnObject(this.gameObject);
         }
     }
 
@@ -62,17 +60,6 @@ public class RareCat : BaseEnemy
         }
     }
 
-    #region UnityEngine.Pool Functions
-    public void SetManagedPool(IObjectPool<RareCat> poolObj)
-    {
-        managedPool = poolObj;
-    }
-
-    public void DestroyManagedPool()
-    {
-        managedPool.Release(this);
-    }
-    #endregion
     public override void OnDamge(int damage)
     {
         HitDamagePoolManager.GetInstance.GetHitDamageText(this.transform, damage.ToString());
@@ -87,7 +74,7 @@ public class RareCat : BaseEnemy
     private void OnDied()
     {
         GameScenePresenter.GetInstance.UpdateScore();
-        this.DestroyManagedPool();
+        PoolManager.GetInstance.ReturnObject(this.gameObject);
     }
 
     /// <summary>

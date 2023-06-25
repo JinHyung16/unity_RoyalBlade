@@ -8,7 +8,7 @@ namespace Hugh.Utility
     public class LoadAssetBundle : MonoBehaviour
     {
         private List<GameObject> prefabs = new List<GameObject>();
-
+        private AssetBundle asset;
 
         [HideInInspector] public bool isLoadDone = false;
 
@@ -25,6 +25,7 @@ namespace Hugh.Utility
         private void Awake()
         {
             LoadBundleFromLocalAsync("cat");
+            Debug.Log("Awake: Load Asset Bundle");
         }
 
         public void LoadBundleFromLocalAsync(string bundleName)
@@ -42,13 +43,13 @@ namespace Hugh.Utility
         private IEnumerator LoadBundleFromLocal()
         {
 #if UNITY_EDITOR || UNITY_EDITOR_WIN
-            AssetBundle asset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/StreamingAssets", loadBundle));
+            asset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/StreamingAssets", loadBundle));
 #elif UNITY_ANDROID
-            AssetBundle asset = AssetBundle.LoadFromFile(Path.Combine("jar:file://" + Application.dataPath + "!/assets", loadBundle));
+            asset = AssetBundle.LoadFromFile(Path.Combine("jar:file://" + Application.dataPath + "!/assets", loadBundle));
 #endif
             if ( asset == null )
             {
-                Debug.Log("에셋이 없다는데");
+                Debug.Log("Load해온 에셋이 없다.");
                 yield break;
             }
 
@@ -60,7 +61,7 @@ namespace Hugh.Utility
 
             yield return new WaitUntil(() => isLoadDone == true);
             asset.Unload(true);
-            Debug.Log("다 불러온 뒤: " + prefabs.Count);
+            Debug.Log("Unload하여 정리 완료 ");
         }
     }
 }
